@@ -5,6 +5,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 )
 
 func main() {
@@ -32,11 +33,13 @@ func main() {
 	// start quiz
 	score := 0
 	fullScore := len(records)
-	var answer string
+	var userAnswer string
 	for index, record := range records {
-		fmt.Printf("Problem #%d: %v = ", index+1, record[0])
-		fmt.Scanln(&answer)
-		if answer == record[1] {
+		question := record[0]
+		correctAnswer := record[1]
+		fmt.Printf("Problem #%d: %v = ", index+1, question)
+		fmt.Scanln(&userAnswer)
+		if strings.EqualFold(userAnswer, correctAnswer) {
 			score++
 		}
 	}
