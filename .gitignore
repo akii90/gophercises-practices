@@ -27,7 +27,14 @@ go.work.sum
 # Vim swp file
 *.swp
 
-# other
+# Ide
 .idea/
 .vscode/
+
+# Mac
 .DS_Store
+
+# Test
+**/test/*
+**/tests/*
+*test*
