@@ -8,10 +8,19 @@ import (
 	"strings"
 )
 
+// readCsvFile read a csv file, get the record in csv file.
+// return
+func readCsvFile() ([][]string, error) {
+	// Todo, implement me
+	panic("implement me")
+}
+
 func main() {
 	// flag for command line
 	file := flag.String("file", "problems.csv", "a csv file in a format of 'question,answer'")
+	// Todo， implement limit flag
 	//limit := flag.Int("limit", 30, "the time limit for the quiz in seconds")
+	// Todo， implement shuffle flag, shuffle the quiz order each time it is run
 	flag.Parse()
 
 	// open file
