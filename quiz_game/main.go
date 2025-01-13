@@ -7,6 +7,7 @@ import (
 	"log"
 	"os"
 	"strings"
+	"time"
 )
 
 type quiz struct {
@@ -83,13 +84,26 @@ func readCsvFile(file *string) (records [][]string) {
 func main() {
 	// flag for command line
 	file := flag.String("file", "problems.csv", "a csv file in a format of 'question,answer'")
-	// Todo， implement limit flag
-	//timeLimit := flag.Int("limit", 30, "the time limit for the quiz in seconds")
+	timeLimit := flag.Int("limit", 30, "the time limit for the quiz in seconds")
 	// Todo， implement shuffle flag, shuffle the quiz order each time it is run
 	flag.Parse()
 
 	records := readCsvFile(file)
 	quizGame := newQuiz(records)
-	quizGame.challenge()
-	quizGame.scoreOutput()
+
+	ch := make(chan struct{})
+	defer close(ch)
+
+	go func() {
+		quizGame.challenge()
+		ch <- struct{}{}
+	}()
+
+	// time limit
+	select {
+	case <-ch:
+		quizGame.scoreOutput()
+	case <-time.After(time.Duration(*timeLimit) * time.Second):
+		quizGame.scoreOutput()
+	}
 }
