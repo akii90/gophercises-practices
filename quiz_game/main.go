@@ -2,6 +2,7 @@ package main
 
 import (
 	"encoding/csv"
+	"errors"
 	"flag"
 	"fmt"
 	"log"
@@ -23,8 +24,8 @@ type question struct {
 
 // challenge give user questions, wait user to answer, recording user score.
 func (q *quiz) challenge() {
-	var userAnswer string
 	for i, question := range q.questionsList {
+		var userAnswer string
 		number := i + 1
 		fmt.Printf("Problem #%d: %v = ", number, question.text)
 		fmt.Scanln(&userAnswer)
@@ -40,26 +41,33 @@ func (q *quiz) scoreOutput() {
 }
 
 func newQuiz(records [][]string) *quiz {
-	questionsList := make([]question, len(records))
+	questionsList := make([]question, 0, len(records))
 	for index, record := range records {
-		if len(record) < 2 {
-			fmt.Println("Error format for question and answer")
+		question, err := newQuestions(record)
+		if err != nil {
+			fmt.Printf("Question in line%d is invlaid: %s\n", index+1, err)
 			continue
 		}
-		questionsList[index] = newQuestions(record)
+		questionsList = append(questionsList, question)
 	}
 	return &quiz{
 		questionsList: questionsList,
 		userScore:     0,
-		fullScore:     len(records),
+		fullScore:     len(questionsList),
 	}
 }
 
-func newQuestions(row []string) question {
-	return question{
-		text:   row[0],
-		answer: row[1],
+func newQuestions(row []string) (question, error) {
+	var err error
+	text := strings.TrimSpace(row[0])
+	answer := strings.TrimSpace(row[1])
+	if text == "" || answer == "" {
+		err = errors.New("question or answer can not be empty")
 	}
+	return question{
+		text:   text,
+		answer: answer,
+	}, err
 }
 
 // readCsvFile read a csv file, get the record in csv file.
