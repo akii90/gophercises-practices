@@ -24,6 +24,17 @@ go.work.sum
 # env file
 .env
 
-# other
+# Vim swp file
+*.swp
+
+# Ide
 .idea/
 .vscode/
+
+# Mac
+.DS_Store
+
+# Test
+**/test/*
+**/tests/*
+*test*
