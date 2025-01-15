@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"math/rand"
 	"os"
 	"strings"
 	"time"
@@ -23,7 +24,10 @@ type question struct {
 }
 
 // challenge give user questions, wait user to answer, recording user score.
-func (q *quiz) challenge() {
+func (q *quiz) challenge(shuffle bool) {
+	if shuffle {
+		q.questionsList = randomTraverseGeneric(q.questionsList)
+	}
 	for i, question := range q.questionsList {
 		var userAnswer string
 		number := i + 1
@@ -89,11 +93,26 @@ func readCsvFile(file *string) (records [][]string) {
 	return records
 }
 
+// fisher-yates shuffle, shuffle the slice order
+func randomTraverseGeneric[T any](slice []T) []T {
+	r := rand.New(rand.NewSource(time.Now().UnixNano()))
+
+	result := make([]T, len(slice))
+	copy(result, slice)
+
+	for i := len(result) - 1; i > 0; i-- {
+		j := r.Intn(i + 1)
+		result[i], result[j] = result[j], result[i]
+	}
+	return result
+}
+
 func main() {
 	// flag for command line
 	file := flag.String("file", "problems.csv", "a csv file in a format of 'question,answer'")
 	timeLimit := flag.Int("limit", 30, "the time limit for the quiz in seconds")
 	// Todo， implement shuffle flag, shuffle the quiz order each time it is run
+	shuffleQuiz := flag.Bool("shuffle", false, "shuffle the quiz order")
 	flag.Parse()
 
 	records := readCsvFile(file)
@@ -103,7 +122,7 @@ func main() {
 	defer close(ch)
 
 	go func() {
-		quizGame.challenge()
+		quizGame.challenge(*shuffleQuiz)
 		ch <- struct{}{}
 	}()
 
