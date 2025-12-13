@@ -7,7 +7,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"url/urlshort"
 )
 
 func main() {
@@ -33,12 +32,12 @@ func main() {
 	mux := defaultMux()
 
 	// Build the MapHandler using the mux as the fallback
-	var pathsToUrls urlshort.PathMap
-	// pathsToUrls := urlshort.PathMap{
+	var pathsToUrls pathMap
+	// pathsToUrls := urlshort.pathMap{
 	// 	"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
 	// 	"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
 	// }
-	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
+	mapHandler := MapHandler(pathsToUrls, mux)
 
 	// Build the YAMLHandler using the mapHandler as the
 	// fallback
@@ -48,7 +47,7 @@ func main() {
 	// - path: /urlshort-final
 	//   url: https://github.com/gophercises/urlshort/tree/solution
 	// `
-	yamlHandler, err := urlshort.YAMLHandler(pathInfo, mapHandler)
+	yamlHandler, err := YAMLHandler(pathInfo, mapHandler)
 	if err != nil {
 		panic(err)
 	}

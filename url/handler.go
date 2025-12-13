@@ -1,13 +1,13 @@
-package urlshort
+package main
 
 import (
 	"gopkg.in/yaml.v3"
 	"net/http"
 )
 
-type PathMap map[string]string
+type pathMap map[string]string
 
-type PathUrl struct {
+type pathUrl struct {
 	Path string `yaml:"path"`
 	Url  string `yaml:"url"`
 }
@@ -18,7 +18,7 @@ type PathUrl struct {
 // that each key in the map points to, in string format).
 // If the path is not provided in the map, then the fallback
 // http.Handler will be called instead.
-func MapHandler(p PathMap, fallback http.Handler) http.HandlerFunc {
+func MapHandler(p pathMap, fallback http.Handler) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		requestPath := r.URL.Path
 
@@ -55,9 +55,9 @@ func YAMLHandler(yml []byte, fallback http.Handler) (http.HandlerFunc, error) {
 	return MapHandler(parsedYaml, fallback), nil
 }
 
-// parseYAML will parse the provided YAML to PathMap
-func parseYAML(yml []byte) (PathMap, error) {
-	paths := make([]PathUrl, 2)
+// parseYAML will parse the provided YAML to pathMap
+func parseYAML(yml []byte) (pathMap, error) {
+	var paths []pathUrl
 	err := yaml.Unmarshal(yml, &paths)
 	if err != nil {
 		return nil, err
@@ -65,9 +65,9 @@ func parseYAML(yml []byte) (PathMap, error) {
 	return buildMap(paths), nil
 }
 
-// parseYAML will convert the provided []PathUrl to PathMap
-func buildMap(paths []PathUrl) PathMap {
-	pm := make(PathMap)
+// parseYAML will convert the provided []pathUrl to pathMap
+func buildMap(paths []pathUrl) pathMap {
+	pm := make(pathMap)
 	for _, pu := range paths {
 		if pu.Path != "" {
 			pm[pu.Path] = pu.Url
