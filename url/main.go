@@ -40,6 +40,6 @@ func defaultMux() *http.ServeMux {
 	return mux
 }
 
-func hello(w http.ResponseWriter, r *http.Request) {
+func hello(w http.ResponseWriter, _ *http.Request) {
 	fmt.Fprintln(w, "Hello, world!")
 }
