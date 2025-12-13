@@ -1,31 +1,53 @@
 package main
 
 import (
+	"flag"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
-	"url/urlshort"
+	"os"
 )
 
 func main() {
+	pathFile := flag.String("file", "", "file with path redirection info")
+	flag.Parse()
+	if *pathFile == "" {
+		fmt.Fprintln(os.Stderr, "Need to set flag, supported format: yaml")
+		flag.PrintDefaults()
+		os.Exit(1)
+	}
+
+	f, err := os.Open(*pathFile)
+	if err != nil {
+		panic(err)
+	}
+	defer f.Close()
+
+	pathInfo, err := io.ReadAll(f)
+	if err != nil {
+		panic(err)
+	}
+
 	mux := defaultMux()
 
 	// Build the MapHandler using the mux as the fallback
-	pathsToUrls := urlshort.PathMap{
-		"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
-		"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
-	}
-	mapHandler := urlshort.MapHandler(pathsToUrls, mux)
+	var pathsToUrls pathMap
+	// pathsToUrls := urlshort.pathMap{
+	// 	"/urlshort-godoc": "https://godoc.org/github.com/gophercises/urlshort",
+	// 	"/yaml-godoc":     "https://godoc.org/gopkg.in/yaml.v2",
+	// }
+	mapHandler := MapHandler(pathsToUrls, mux)
 
 	// Build the YAMLHandler using the mapHandler as the
 	// fallback
-	pathYaml := `
-- path: /urlshort
-  url: https://github.com/gophercises/urlshort
-- path: /urlshort-final
-  url: https://github.com/gophercises/urlshort/tree/solution
-`
-	yamlHandler, err := urlshort.YAMLHandler([]byte(pathYaml), mapHandler)
+	// 	pathInfo := `
+	// - path: /urlshort
+	//   url: https://github.com/gophercises/urlshort
+	// - path: /urlshort-final
+	//   url: https://github.com/gophercises/urlshort/tree/solution
+	// `
+	yamlHandler, err := YAMLHandler(pathInfo, mapHandler)
 	if err != nil {
 		panic(err)
 	}
